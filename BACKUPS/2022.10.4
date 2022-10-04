@@ -1,0 +1,357 @@
+var _TITLE = "MEDICINE CLERK";
+var _CREATOR = "asher hausam";
+var _STARTDATE = "2022/09/14-10:05";
+var _ENDDATE = "?";
+
+//CHANGELOG
+/*
+2022/09/14: Began Work, randomized game idea, planned out gameplay
+2022/09/15: Tested Scaling, began work on player movement
+2022/09/16: Implemented basic character movement, began work on scene implementation
+2022/09/19: Fixed player movement, implemented basic scene tree
+2022/09/20: Began work on intro animation
+2022/09/21: 
+*/
+
+
+//BACKGROUND CALCULATIONS
+{
+    //SCENE
+var sceneList = ["intro", "menu", "world", "level"];
+var scene = sceneList[0];
+var sceneTime = 0;
+
+    //TIME
+var time = 0;
+var timeReset = 0;
+
+    //ORDER TRACKING
+var currentOrder = 2;
+
+}
+
+//USER INPUT
+{
+var keys = [];
+
+var mX = mouseX;
+var mY = mouseY;
+
+}
+
+//CONSTANTS
+{
+var W = width;
+var H = height;
+}
+
+//PLAYER
+{
+var playerPos = [0.4*W,0.55*W,0.48*W,0.69*W];
+var playerJumpVel = 0.0 * H;
+
+    //PLAYER STATES
+var jump = false;
+var crouch = false;
+
+    //PLAYER SPEED
+var playerMinSpeed = W*0.01;
+var playerSpeed = playerMinSpeed;
+var playerMaxSpeed = W*0.015;
+var playerAcceleration = (playerMaxSpeed - playerMinSpeed) / 10.0; 
+
+}
+
+//RESTART BUTTON
+{
+var rand = random(0,0);
+}
+
+//COLORS
+{
+var COFFEE_CLICKER_BLUE = color(130, 200, 240);
+var BROWN = color(100, 65, 35);
+var TAN = color(170, 120, 60);
+var LIGHT_TAN = color(225, 190, 140);
+var DARK_GREY = color(110, 110, 110);
+var DARK_GRAY = DARK_GREY;
+var WHITE = color(255);
+var BLACK = color(0);
+var LIGHT_BLACK = color(40,40,40);
+var DARK_WHITE = color(230,230,230);
+var JEANS = color(35, 0, 110);
+var GOLD = color(240, 210, 70);
+}
+
+//FORMATTING
+{
+rectMode(CORNERS);
+ellipseMode(CORNERS);
+var woodSW = W*0.01;
+var slotSW = W*0.015;
+var orderSW = W*0.01;
+var playerSW = W*0.016;
+var crownSW = W*0.000015;
+}
+
+//FUNCTIONS
+    //PLAYER INPUT
+function keyPressed(){
+    keys[keyCode] = true;
+}
+function keyReleased(){
+    keys[keyCode] = false;
+}
+
+
+//START FUNCTION DRAW---------------------------------------------------------
+function draw(){
+    
+//EACH FRAME UPDATE
+{
+    //MOUSE POSITION
+    mX = mouseX;
+    mY = mouseY;
+    
+    
+    
+    //TIME
+    time = millis()/1000.0;
+    timeReset = millis()/1000.0;
+}
+
+//COLLISON
+{
+    
+}
+
+//PLAYER MOVEMENT
+{
+ 
+if(scene === "level"){
+    //GRAVITY
+    {
+    if(playerPos[3] < 0.65*H){
+        playerJumpVel += H*0.0018;
+    } else if (playerPos[3] > 0.71 * H){
+        playerJumpVel = H*0.0;
+        playerPos[3] -= H*0.008;
+        playerPos[1] -= H*0.008;
+        jump = false;
+    } else if (playerPos[3] > 0.69*H){
+        playerJumpVel = H*0.0;
+        playerPos[3] -= H*0.002;
+        playerPos[1] -= H*0.002;
+        jump = false;
+    }
+
+    playerPos[1] += playerJumpVel;
+    playerPos[3] += playerJumpVel;
+    }
+    
+    //PLAYERSPEED
+    {   
+        //ACCELERATION
+        if((playerSpeed < playerMaxSpeed) && (keys[LEFT] || keys[RIGHT])){
+            playerSpeed += playerAcceleration;
+        }
+        
+        //SPECIAL MOVEMENT
+        if(jump && crouch){
+            playerSpeed = W*0.02;
+        }else if(jump){
+            playerSpeed = W*0.015;
+        }else if(crouch){
+            playerSpeed = W*0.015;
+        }else if(!crouch && !jump && !keys[LEFT] && !keys[RIGHT]){
+            playerSpeed = playerMinSpeed;
+        }
+    }
+    
+    //HORIZONTAL MOVEMENT
+    {
+    if(keys[LEFT] && keys[RIGHT]){
+
+    }else if(keys[LEFT] && playerPos[0] > (0.0*W + playerSW) && playerPos[3] > (0.0*W + playerSW)){
+        playerPos[0] -= playerSpeed;
+        playerPos[2] -= playerSpeed;
+    } else if(keys[RIGHT] && playerPos[2] < 1.0*W - playerSW && playerPos[3] > (0.0*W + playerSW)){
+        playerPos[0] += playerSpeed;
+        playerPos[2] += playerSpeed;
+    }
+    }
+    
+    //JUMP & CROUCH
+    {
+    if((keys[UP]) && (jump === false)){
+        
+        playerPos[1] -= H*0.002;
+        playerPos[3] -= H*0.002;
+        playerJumpVel -= 0.034*H;
+        jump = true;
+    } else if (keys[DOWN]){
+        crouch = true;
+        playerPos[1] = playerPos[3] - 0.1*W; 
+    } else if (keys[DOWN] === false){
+        crouch = false;
+        playerPos[1] = playerPos[3] - 0.14*W;
+    }
+    }
+    
+    //SPECIAL ACTION
+    {
+    if(keys[32]){
+     
+    }   
+    }
+    
+    
+}
+}
+
+//UI
+{
+    //BACKGROUND
+    {
+    switch (scene){
+        case "intro":
+            background(COFFEE_CLICKER_BLUE);
+        break;
+        
+        case "menu":
+        break;
+        
+        case "world":
+        break;
+        
+        case "level":
+            background(COFFEE_CLICKER_BLUE);
+        break;
+    }
+    }   
+        
+    if(scene === "level"){
+        //Floor
+        noStroke();
+        fill(DARK_GREY);
+        
+        for (var column = 0; column <= 3; column++){
+        for(var row = 0; row <= 19; row++){
+            if(row % 2 === 0){
+                if(column % 2 === 0){
+                fill(LIGHT_BLACK);
+                } else {
+                fill(DARK_WHITE);
+                }
+            } else {
+                if(column % 2 === 0){
+                fill(DARK_WHITE);
+                } else {
+                fill(LIGHT_BLACK);
+                }
+            }//END FOR ROW
+            rect(0.0*W+0.05*W*row,0.7*H+0.05*H*column,0.1*W+0.1*W*row,0.75*H+0.05*H*column);
+        }//END FOR COLUMN
+        
+        rect(0.0*W,0.69*H,1.0*W,0.7*H);
+        
+        }
+ 
+    //INVENTORY
+        //WOOD BAR
+        {
+    strokeWeight(woodSW);
+    stroke(BROWN);
+    fill(TAN);
+    rect(0.0*W+woodSW/2,0.85*H,W-woodSW/2,H-woodSW/2);
+        }
+        
+        //SELECTION SLOT
+        {
+    strokeWeight(slotSW);
+    fill(LIGHT_TAN);
+    rect(0.375*W,0.75*H,0.625*W,H-slotSW/2,0.2*W);
+        }
+        
+    //ORDERS
+        //WOOD BAR
+        {
+    strokeWeight(woodSW);
+    stroke(BROWN);
+    fill(TAN);
+    rect(0.0*W+woodSW/2, 0*H+woodSW/2,W-woodSW/2,0.15*H-woodSW/2);
+        }
+        
+        //ORDER SLOTS
+        {
+         for(var order = 0; order <= currentOrder; order++){
+            fill(LIGHT_TAN);
+            rect(order*0.2*W+orderSW/2, 0.0*H+orderSW/2,0.2*W+order*0.2*W-orderSW/2,0.25*H-orderSW/2);   
+         }
+        }
+
+
+    }
+    else if(scene === "intro"){
+        
+        //HEAD
+        fill(DARK_WHITE);
+        stroke(LIGHT_BLACK);
+        strokeWeight(W*0.02);
+        rect(0.25*W,0.35*H,0.75*W,0.65*H,W*0.03);
+        
+        //NECK
+        rect(0.45*W,0.75*H,0.55*W,0.65*H,W*0);
+        
+        //CHEST
+        rect(0.35*W,0.75*H,0.65*W,0.80*H,W*0.02);
+        
+        //CROWN
+            //FORMAT
+        noStroke();
+            //BACKFILL
+                //CROWN POINTS
+            fill(LIGHT_BLACK);
+        ellipse(0.7*W-crownSW*W,0.15*H-crownSW*H,0.75*W+crownSW*W,0.2*H+crownSW*H); //0
+        ellipse(0.775*W-crownSW*W,0.175*H-crownSW*H,0.825*W+crownSW*W,0.225*H+crownSW*H); //1
+        ellipse(0.85*W-crownSW*W,0.225*H-crownSW*H,0.9*W+crownSW*W,0.275*H+crownSW*H); //2
+        ellipse(0.875*W-crownSW*W,0.3*H-crownSW*H,0.925*W+crownSW*W,0.35*H+crownSW*H); //3
+            
+            //GOLD
+                //CROWN POINTS
+            fill(GOLD);
+        ellipse(0.7*W,0.15*H,0.75*W,0.2*H); //0
+        ellipse(0.775*W,0.175*H,0.825*W,0.225*H); //1
+        ellipse(0.85*W,0.225*H,0.9*W,0.275*H); //2
+        ellipse(0.875*W,0.3*H,0.925*W,0.35*H); //3
+                
+                //CROWN BASE
+        beginShape();
+            vertex(0,0);
+        endShape();
+    }
+
+}
+
+
+
+//BACKGROUND WORK
+{
+    
+}
+
+//PLAYER
+{
+    //GAMEPLAY CHARACTER
+    if(scene === "level"){
+fill(JEANS);
+stroke(WHITE);
+strokeWeight(playerSW);
+rect(playerPos[0],playerPos[1],playerPos[2],playerPos[3]);
+}
+
+    }
+
+}//END
+
+
